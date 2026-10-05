@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocklyn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'space': ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .subject-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .subject-btn:hover:not(.active) {
+            transform: translateX(4px);
+        }
+
+        .recording-active {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-heading {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glow-border {
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #18181b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+    </style>
+</head>
+
+<body class="bg-black min-h-screen text-white font-inter">
+
+    <!-- Top Global App Bar -->
+    <nav class="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-semibold text-zinc-300">AI Coach Ready</span>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center gap-2 bg-zinc-900/80 p-1 rounded-xl border border-zinc-800">
+            <button id="navPracticeBtn" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white shadow">
+                <i class="fas fa-microphone mr-1.5"></i> Practice
+            </button>
+            <button id="navDashboardBtn" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white">
+                <i class="fas fa-chart-line mr-1.5"></i> My Journey
+            </button>
+        </div>
+
+        <!-- User / Session Controls -->
+        <div class="flex items-center gap-3">
+            <div id="userProfileBadge" class="flex items-center gap-2.5 bg-zinc-900/60 border border-zinc-800 px-3 py-1.5 rounded-xl cursor-pointer hover:bg-zinc-800/60 transition">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white">
+                    <span id="userInitial">U</span>
+                </div>
+                <div class="text-left">
+                    <p id="candidateNameDisplay" class="text-xs font-semibold text-white leading-tight">Candidate</p>
+                    <p class="text-[10px] text-zinc-400 leading-tight">Active Session</p>
+                </div>
+            </div>
+            <button id="logoutBtn" title="Switch User / Logout" class="text-zinc-400 hover:text-red-400 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-2 rounded-xl text-sm transition-colors">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="min-h-[calc(100vh-61px)] flex flex-col lg:flex-row">
+
+        <!-- Sidebar - 1/5 width on large screens -->
+        <aside class="w-full lg:w-1/5 sidebar-gradient border-b lg:border-b-0 lg:border-r border-zinc-800/50 p-4 lg:p-6 flex flex-col">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <i class="fas fa-brain text-white text-lg"></i>
+                </div>
+                <span class="font-space font-bold text-2xl tracking-tight gradient-heading">Mocklyn</span>
+            </div>
+
+            <!-- Topic Label -->
+            <h3 class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">Select Topic</h3>
+
+            <!-- Subject Buttons -->
+            <div class="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-cyan-500/50 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="Resume / Document">
+                    <div class="w-9 h-9 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-cyan-400"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <span class="font-medium text-sm text-white block truncate">Resume / Document</span>
+                        <span class="text-[10px] text-cyan-400/80 block">Upload PDF / DOC</span>
+                    </div>
+                </button>
+
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-500 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="Self Introduction">
+                    <div class="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user text-blue-400"></i>
+                    </div>
+                    <span class="font-medium text-sm text-white">Self Introduction</span>
+                </button>
+
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-500 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="Generative AI">
+                    <div class="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-brain text-purple-400"></i>
+                    </div>
+                    <span class="font-medium text-sm text-white">Generative AI</span>
+                </button>
+
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-500 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="Python">
+                    <div class="w-9 h-9 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fab fa-python text-yellow-400"></i>
+                    </div>
+                    <span class="font-medium text-sm text-white">Python</span>
+                </button>
+
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-500 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="English">
+                    <div class="w-9 h-9 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-language text-green-400"></i>
+                    </div>
+                    <span class="font-medium text-sm text-white">English</span>
+                </button>
+
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-500 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="HTML">
+                    <div class="w-9 h-9 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fab fa-html5 text-orange-400"></i>
+                    </div>
+                    <span class="font-medium text-sm text-white">HTML</span>
+                </button>
+
+                <button class="subject-btn flex items-center gap-3 bg-zinc-900/30 hover:bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-500 rounded-xl p-3 transition-all duration-300 text-left whitespace-nowrap flex-shrink-0" data-subject="CSS">
+                    <div class="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fab fa-css3-alt text-blue-400"></i>
+                    </div>
+                    <span class="font-medium text-sm text-white">CSS</span>
+                </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-auto pt-6 hidden lg:block">
+                <p class="text-zinc-500 text-xs">Powered by AI</p>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 lg:w-4/5 flex flex-col bg-black overflow-y-auto custom-scrollbar">
+
+            <!-- Resume In-Progress Banner -->
+            <div id="resumeBanner" class="hidden bg-gradient-to-r from-amber-500/20 to-purple-500/20 border-b border-amber-500/30 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-history text-amber-400 text-lg"></i>
+                    <div>
+                        <p class="text-sm font-semibold text-white">Incomplete Interview Detected</p>
+                        <p id="resumeBannerText" class="text-xs text-zinc-300">You have an ongoing interview session.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="resumeInterviewBtn" class="bg-amber-500 hover:bg-amber-600 text-black px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                        Resume Session
+                    </button>
+                    <button id="discardInterviewBtn" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg text-xs transition">
+                        Start Fresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW 1: PRACTICE INTERVIEW -->
+            <div id="practiceView" class="flex-1 flex flex-col p-4 lg:p-8">
+                <header class="mb-6">
+                    <div class="text-center max-w-2xl mx-auto">
+                        <h1 class="font-space font-bold text-3xl lg:text-5xl tracking-tight mb-2">
+                            <span class="gradient-text">Master Your Interview</span>
+                        </h1>
+                        <p class="text-gray-400 text-sm lg:text-base font-light">Adaptive continuous AI interview coach tracking your growth and progress.</p>
+                    </div>
+                </header>
+
+                <!-- Welcome State -->
+                <div id="welcomeState" class="flex-1 flex flex-col items-center justify-center text-center py-8">
+                    <div class="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-full flex items-center justify-center mb-6 border border-zinc-700/30 glow-border">
+                        <i class="fas fa-microphone text-3xl lg:text-4xl text-zinc-400"></i>
+                    </div>
+                    <h2 class="font-space text-2xl lg:text-3xl font-bold gradient-heading mb-2">Ready to Practice?</h2>
+                    <p class="text-gray-400 text-sm lg:text-base max-w-md mb-6">Select a topic from the sidebar or upload your resume/document to begin your personalized interview.</p>
+                    <button id="welcomeStartBtn" class="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300">
+                        Start Python Interview
+                    </button>
+                </div>
+
+                <!-- Document Upload & Analysis State -->
+                <div id="documentUploadPanel" class="hidden max-w-2xl mx-auto w-full mb-8">
+                    <div class="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 lg:p-8 backdrop-blur">
+                        <div class="text-center mb-6">
+                            <div class="w-12 h-12 bg-cyan-500/20 text-cyan-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-file-upload text-xl"></i>
+                            </div>
+                            <h3 class="font-space text-2xl font-bold text-white">Interview From Your Document</h3>
+                            <p class="text-zinc-400 text-xs mt-1">Upload your Resume, CV, Tech Spec, or Job Description (PDF, DOCX, TXT) to get a 100% customized 5-question interview.</p>
+                        </div>
+
+                        <!-- Tab Selection: File Upload vs Paste Text -->
+                        <div class="flex rounded-xl bg-zinc-950 p-1 mb-5 border border-zinc-800">
+                            <button id="tabDocFileBtn" type="button" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+                                <i class="fas fa-file-pdf mr-1"></i> Upload File (PDF / DOCX / TXT)
+                            </button>
+                            <button id="tabDocTextBtn" type="button" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-zinc-400 hover:text-white">
+                                <i class="fas fa-align-left mr-1"></i> Paste Document Text
+                            </button>
+                        </div>
+
+                        <!-- Dropzone for File -->
+                        <div id="docDropzoneArea" class="border-2 border-dashed border-zinc-700 hover:border-cyan-500/60 rounded-2xl p-8 text-center transition cursor-pointer bg-zinc-950/40">
+                            <input type="file" id="docFileInput" accept=".pdf,.docx,.doc,.txt" class="hidden">
+                            <div class="w-14 h-14 bg-zinc-800/80 rounded-2xl flex items-center justify-center mx-auto mb-3 text-cyan-400">
+                                <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-zinc-200">Click to upload or drag & drop</p>
+                            <p class="text-xs text-zinc-400 mt-1">PDF, DOCX, or TXT up to 10MB</p>
+                        </div>
+
+                        <!-- Textarea for Paste -->
+                        <div id="docPasteArea" class="hidden">
+                            <textarea id="docPasteInput" rows="7" placeholder="Paste your resume content, project description, or article text here..." class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
+                            <button id="docAnalyzePasteBtn" type="button" class="mt-3 w-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-2.5 rounded-xl font-bold text-xs hover:opacity-90 transition">
+                                Analyze Pasted Text
+                            </button>
+                        </div>
+
+                        <!-- Document Analysis Status & Preview Card -->
+                        <div id="docAnalysisSpinner" class="hidden text-center py-6">
+                            <div class="inline-block w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+                            <p class="text-xs text-cyan-300 font-medium">Extracting technical skills, projects & generating custom interview questions...</p>
+                        </div>
+
+                        <div id="docPreviewCard" class="hidden mt-5 bg-zinc-950 rounded-2xl p-5 border border-cyan-500/30">
+                            <div class="flex items-start justify-between gap-3 mb-3 border-b border-zinc-800 pb-3">
+                                <div>
+                                    <span class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider bg-cyan-950/60 px-2 py-0.5 rounded-md border border-cyan-800/60">Document Loaded</span>
+                                    <h4 id="docPreviewTitle" class="text-base font-bold text-white mt-1">Candidate Resume</h4>
+                                    <p id="docPreviewStats" class="text-xs text-zinc-400 mt-0.5">0 words extracted</p>
+                                </div>
+                                <button id="docClearBtn" type="button" title="Choose another document" class="text-zinc-500 hover:text-red-400 text-xs p-1">
+                                    <i class="fas fa-trash-alt mr-1"></i> Change File
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Detected Skills & Technologies</p>
+                                <div id="docSkillsList" class="flex flex-wrap gap-1.5"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">Generated Interview Focus</p>
+                                <p id="docSummarySnippet" class="text-xs text-zinc-300 leading-relaxed italic bg-zinc-900/60 p-3 rounded-xl border border-zinc-800/80"></p>
+                            </div>
+
+                            <button id="docStartInterviewBtn" type="button" class="w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-cyan-500/20 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-play"></i> Start 5-Question Interview on This Document
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interview State -->
+                <div id="interviewState" class="hidden max-w-3xl mx-auto w-full">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-zinc-900/40 p-4 rounded-2xl border border-zinc-800/60">
+                        <div class="flex items-center gap-3">
+                            <span id="subjectBadge" class="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-4 py-1.5 rounded-full font-semibold text-sm shadow">Python</span>
+                            <i id="subjectIcon" class="fab fa-python text-xl text-yellow-400"></i>
+                            <span id="returningCandidateBadge" class="hidden text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
+                                <i class="fas fa-sync-alt mr-1"></i> Continuous Session
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400 text-xs uppercase tracking-wider">Progress</span>
+                            <span class="text-gray-300 text-sm font-medium">Question <span id="questionNum" class="text-white font-bold text-base">1</span>/5</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="w-32 h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 border-zinc-700/50 mb-3 shadow-2xl relative">
+                            <img src="https://www.whiteroomstudio.com.sg/wordpress/wp-content/uploads/2021/10/professional-headshot-photography-linkedin-singapore-5.jpeg" alt="Natalie" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-gray-200 text-base font-semibold">Natalie</p>
+                        <p class="text-zinc-500 text-xs">AI Interviewer & Coach</p>
+                    </div>
+
+                    <div class="max-w-2xl mx-auto mb-6 w-full">
+                        <div id="speakingBubble" class="hidden flex justify-center items-center gap-3 p-4 bg-zinc-900/70 rounded-2xl border border-zinc-800">
+                            <div class="flex gap-2">
+                                <div class="w-2.5 h-2.5 bg-[#667eea] rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+                                <div class="w-2.5 h-2.5 bg-[#764ba2] rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                                <div class="w-2.5 h-2.5 bg-[#f093fb] rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+                            </div>
+                            <span id="speakingText" class="text-gray-200 text-sm font-medium">Natalie is speaking...</span>
+                        </div>
+
+                        <div id="questionDisplayBox" class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5 mb-4 text-center">
+                            <p class="text-xs text-zinc-400 uppercase tracking-widest mb-1.5 font-semibold">Current Question</p>
+                            <p id="currentQuestionText" class="text-base sm:text-lg text-zinc-100 font-medium leading-relaxed">
+                                Click "Start Interview" to begin your session.
+                            </p>
+                        </div>
+
+                        <div id="liveTranscriptBox" class="hidden bg-zinc-950 border border-zinc-800/80 rounded-2xl p-4 text-left">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Your Answer (Speech / Text)
+                                </span>
+                                <span class="text-[10px] text-zinc-500">Live Web Speech or Type Directly</span>
+                            </div>
+                            <textarea id="answerTextInput" rows="3" placeholder="Speak into your microphone, or type/edit your response directly here before submitting..." class="w-full bg-zinc-900/60 border border-zinc-800 rounded-xl p-3 text-sm text-zinc-100 focus:outline-none focus:border-purple-500/80 resize-y transition"></textarea>
+                            <div id="silentAnswerWarning" class="hidden mt-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>No speech or text detected. If you submit without answering, this question will receive a 0 score.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-4 mb-6">
+                        <button id="startInterviewBtn" class="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300">
+                            Start Interview
+                        </button>
+                        
+                        <button id="recordBtn" disabled class="hidden w-20 h-20 rounded-full bg-zinc-800/80 text-gray-300 flex items-center justify-center transition-all duration-300 border-2 border-zinc-700/50 hover:border-zinc-500">
+                            <i id="micIcon" class="fas fa-microphone text-2xl"></i>
+                            <i id="stopIcon" class="fas fa-stop text-2xl hidden"></i>
+                        </button>
+                        <p id="recordingStatus" class="text-gray-400 text-sm">Click Start Interview to begin</p>
+
+                        <button id="submitBtn" disabled class="hidden bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-8 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300">
+                            Submit Answer
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="endInterviewBtn" disabled class="border border-zinc-700 text-gray-400 px-5 py-2 rounded-xl transition-all duration-300 hover:border-red-500/50 hover:text-red-400 font-medium text-xs">
+                            End Interview Early & Get Feedback
+                        </button>
+                    </div>
+
+                    <!-- Inline Feedback Section -->
+                    <div id="feedbackSection" class="hidden mt-8 pt-6 border-t border-zinc-800/50">
+                        <div id="getFeedbackArea" class="text-center mb-6">
+                            <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-check text-xl"></i>
+                            </div>
+                            <p class="text-white font-bold text-lg mb-1">Interview Completed!</p>
+                            <p class="text-zinc-400 text-sm mb-4">Click below to generate your personalized coaching report and save this attempt to your profile.</p>
+                            <button id="getFeedbackBtn" class="bg-gradient-to-r from-[#667eea] via-[#764ba2] to-[#f093fb] text-white px-8 py-3 rounded-full font-bold text-sm hover:opacity-90 transition shadow-lg shadow-purple-500/30">
+                                Generate Continuous Feedback
+                            </button>
+                        </div>
+
+                        <div id="feedbackContent" class="hidden max-w-2xl mx-auto bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl">
+                            <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6 border-b border-zinc-800/80 pb-6">
+                                <div>
+                                    <span id="feedbackAttemptBadge" class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full uppercase font-bold tracking-wider">Attempt #1</span>
+                                    <h3 id="feedbackSubject" class="font-space text-2xl font-bold gradient-heading mt-2">Python Interview</h3>
+                                    <p id="feedbackSummaryText" class="text-xs text-zinc-400 mt-1"></p>
+                                </div>
+                                <div class="text-center bg-zinc-950 px-5 py-3 rounded-xl border border-zinc-800">
+                                    <p class="text-[11px] text-zinc-400 uppercase tracking-widest">Score</p>
+                                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
+                                        <span id="scoreValue" class="text-3xl font-bold text-white">0</span>
+                                        <span class="text-xs text-zinc-500">/100</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="comparisonBox" class="hidden bg-purple-950/20 border border-purple-500/30 rounded-xl p-4 mb-5">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h5 class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fas fa-chart-line"></i> Continuous Comparison vs Previous Attempt
+                                    </h5>
+                                    <span id="comparisonDeltaBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">+10 pts</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mt-2">
+                                    <div class="bg-zinc-900/60 p-2.5 rounded-lg border border-zinc-800">
+                                        <span class="text-emerald-400 font-semibold block mb-1">✓ Improved Areas</span>
+                                        <p id="comparisonImprovedText" class="text-zinc-300 leading-relaxed"></p>
+                                    </div>
+                                    <div class="bg-zinc-900/60 p-2.5 rounded-lg border border-zinc-800">
+                                        <span class="text-amber-400 font-semibold block mb-1">⚠ Recurring Weaknesses</span>
+                                        <p id="comparisonRecurringText" class="text-zinc-300 leading-relaxed"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="bg-zinc-900/60 rounded-xl p-4 border border-zinc-800/80">
+                                    <h4 class="text-sm font-bold mb-2 flex items-center gap-2 text-emerald-400">
+                                        <i class="fas fa-check-circle"></i> Demonstrated Strengths
+                                    </h4>
+                                    <ul id="feedbackStrengthsList" class="text-xs text-zinc-300 space-y-1 list-disc list-inside"></ul>
+                                </div>
+
+                                <div class="bg-zinc-900/60 rounded-xl p-4 border border-zinc-800/80">
+                                    <h4 class="text-sm font-bold mb-2 flex items-center gap-2 text-amber-400">
+                                        <i class="fas fa-exclamation-triangle"></i> Identified Weaknesses
+                                    </h4>
+                                    <ul id="feedbackWeaknessesList" class="text-xs text-zinc-300 space-y-1 list-disc list-inside"></ul>
+                                </div>
+
+                                <div class="bg-zinc-900/60 rounded-xl p-4 border border-zinc-800/80">
+                                    <h4 class="text-sm font-bold mb-2 flex items-center gap-2 text-cyan-400">
+                                        <i class="fas fa-compass"></i> Coach Feedback & Next Focus
+                                    </h4>
+                                    <p id="feedbackText" class="text-xs text-zinc-300 leading-relaxed mb-2"></p>
+                                    <ul id="feedbackImprovementList" class="text-xs text-zinc-400 space-y-1 list-disc list-inside"></ul>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                                <button id="viewInDashboardBtn" class="w-full sm:w-auto bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:shadow-lg transition">
+                                    View Full Journey in Dashboard
+                                </button>
+                                <button id="newInterviewBtn" class="w-full sm:w-auto border border-zinc-700 hover:bg-zinc-800 text-zinc-300 px-6 py-2.5 rounded-xl font-medium text-xs transition">
+                                    Practice Another Topic
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: CONTINUOUS COACH DASHBOARD -->
+            <div id="dashboardView" class="hidden flex-1 flex flex-col p-4 lg:p-8 max-w-6xl mx-auto w-full">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-zinc-800/80 pb-6">
+                    <div>
+                        <span class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full uppercase font-bold tracking-wider">
+                            Continuous Coaching Dashboard
+                        </span>
+                        <h2 class="font-space text-3xl font-bold gradient-heading mt-2">Your Interview Journey</h2>
+                        <p class="text-zinc-400 text-sm mt-1">Every attempt is saved to your profile. Natalie tracks your progress across multiple sessions.</p>
+                    </div>
+                    <button id="dashboardStartBtn" class="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg transition flex items-center gap-2 self-start sm:self-auto">
+                        <i class="fas fa-plus"></i> Start New Interview
+                    </button>
+                </div>
+
+                <!-- Stats Overview Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4">
+                        <p class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Completed Attempts</p>
+                        <p id="statTotalAttempts" class="text-2xl lg:text-3xl font-bold text-white mt-1">0</p>
+                        <p class="text-[11px] text-zinc-400 mt-1">Saved to Profile</p>
+                    </div>
+
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4">
+                        <p class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Average Score</p>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="statAverageScore" class="text-2xl lg:text-3xl font-bold text-white">0</span>
+                            <span class="text-xs text-zinc-500">/100</span>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 mt-1">Across all categories</p>
+                    </div>
+
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4">
+                        <p class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Latest Score & Trend</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span id="statRecentScore" class="text-2xl lg:text-3xl font-bold text-white">0</span>
+                            <span id="statScoreTrendBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">Baseline</span>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 mt-1">Trajectory vs past</p>
+                    </div>
+
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4">
+                        <p class="text-xs text-zinc-500 uppercase tracking-wider font-medium">Strongest Category</p>
+                        <p id="statStrongestCategory" class="text-lg lg:text-xl font-bold text-purple-300 mt-1 truncate">N/A</p>
+                        <p class="text-[11px] text-zinc-400 mt-1">Highest proficiency</p>
+                    </div>
+                </div>
+
+                <!-- Score Progression Visualizer -->
+                <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-space font-bold text-lg text-white">Score Progression</h3>
+                            <p class="text-xs text-zinc-400">Chronological score history demonstrating your growth over attempts</p>
+                        </div>
+                        <span id="progressionTrendSummary" class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-medium">
+                            Tracking Long-Term Improvement
+                        </span>
+                    </div>
+
+                    <div id="progressionContainer" class="min-h-[90px] flex items-end gap-3 sm:gap-4 overflow-x-auto pb-2 pt-6"></div>
+                </div>
+
+                <!-- Recurring Strengths & Weaknesses -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-award"></i> Persistent Strengths
+                        </h4>
+                        <div id="recurringStrengthsContainer" class="flex flex-wrap gap-2">
+                            <span class="text-xs text-zinc-500 italic">No recurring strengths recorded yet.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i> Recurring Weaknesses
+                        </h4>
+                        <div id="recurringWeaknessesContainer" class="flex flex-wrap gap-2">
+                            <span class="text-xs text-zinc-500 italic">No recurring weaknesses detected.</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-bullseye"></i> Coach Recommended Focus
+                        </h4>
+                        <ul id="recommendedFocusList" class="text-xs text-zinc-300 space-y-2 list-disc list-inside">
+                            <li class="text-zinc-500 italic list-none">Complete an interview to get coaching recommendations.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Attempt History List -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-space font-bold text-xl text-white">Interview Attempt History</h3>
+                        <span id="attemptCountBadge" class="text-xs text-zinc-400">0 attempts</span>
+                    </div>
+
+                    <div id="dashboardEmptyState" class="hidden bg-zinc-900/30 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
+                        <div class="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-500">
+                            <i class="fas fa-folder-open text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-1">You haven't completed an interview yet.</h4>
+                        <p class="text-zinc-400 text-sm max-w-md mx-auto mb-6">Start your first interview today. Natalie will analyze your answers, assess your strengths and weaknesses, and begin tracking your long-term growth.</p>
+                        <button id="emptyStateStartBtn" class="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-8 py-3 rounded-full font-bold text-sm shadow-lg transition">
+                            Start Your First Interview
+                        </button>
+                    </div>
+
+                    <div id="attemptHistoryList" class="space-y-4"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: FULL FEEDBACK VIEW MODAL -->
+    <div id="fullFeedbackModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
+                <div class="flex items-center gap-3">
+                    <span id="modalAttemptBadge" class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-bold">Attempt #1</span>
+                    <div>
+                        <h3 id="modalSubject" class="font-space text-xl font-bold text-white">Interview Full Feedback</h3>
+                        <p id="modalDate" class="text-xs text-zinc-400 mt-0.5"></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-wider block">Score</span>
+                        <span id="modalScore" class="text-xl font-bold text-emerald-400">0/100</span>
+                    </div>
+                    <button id="closeModalBtn" class="text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 w-8 h-8 rounded-full flex items-center justify-center transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6">
+                <div id="modalComparisonBox" class="hidden bg-purple-950/20 border border-purple-500/30 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                            <i class="fas fa-chart-line mr-1"></i> Comparative Analysis
+                        </span>
+                        <span id="modalScoreChange" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">+0 pts</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mt-2">
+                        <div class="bg-zinc-950 p-3 rounded-lg border border-zinc-800/80">
+                            <span class="text-emerald-400 font-semibold block mb-1">✓ Improved Since Last Time:</span>
+                            <p id="modalImprovedText" class="text-zinc-300"></p>
+                        </div>
+                        <div class="bg-zinc-950 p-3 rounded-lg border border-zinc-800/80">
+                            <span class="text-amber-400 font-semibold block mb-1">⚠ Recurring Weaknesses:</span>
+                            <p id="modalRecurringText" class="text-zinc-300"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-zinc-950/70 p-4 rounded-xl border border-zinc-800/80">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i> Strengths
+                        </h4>
+                        <ul id="modalStrengthsList" class="text-xs text-zinc-300 space-y-1 list-disc list-inside"></ul>
+                    </div>
+
+                    <div class="bg-zinc-950/70 p-4 rounded-xl border border-zinc-800/80">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i> Areas For Growth
+                        </h4>
+                        <ul id="modalWeaknessesList" class="text-xs text-zinc-300 space-y-1 list-disc list-inside"></ul>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-950/70 p-4 rounded-xl border border-zinc-800/80">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2 flex items-center gap-2">
+                        <i class="fas fa-robot"></i> Natalie's Detailed Evaluation
+                    </h4>
+                    <p id="modalFeedbackText" class="text-xs text-zinc-300 leading-relaxed"></p>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-2">
+                        <i class="fas fa-list-ol"></i> Question-by-Question Transcript
+                    </h4>
+                    <div id="modalTranscriptList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-zinc-800 bg-zinc-950 flex justify-end">
+                <button id="modalDoneBtn" class="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-2 rounded-xl text-xs font-semibold transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: WORKING LOGIN / REGISTER MODAL -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+            <button id="closeLoginBtn" class="hidden absolute top-4 right-4 text-zinc-500 hover:text-white text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-purple-500/30">
+                    <i class="fas fa-brain text-white text-2xl"></i>
+                </div>
+                <h3 class="font-space text-2xl font-bold text-white">Mocklyn</h3>
+                <p class="text-zinc-400 text-xs mt-1">Sign in to track your continuous interview journey and progress.</p>
+            </div>
+
+            <div class="flex rounded-xl bg-zinc-950 p-1 mb-5 border border-zinc-800">
+                <button id="tabLoginBtn" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white">
+                    Sign In
+                </button>
+                <button id="tabRegisterBtn" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-zinc-400 hover:text-white">
+                    Create Account
+                </button>
+            </div>
+
+            <div id="authErrorBanner" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-xs p-3 rounded-xl mb-4"></div>
+
+            <form id="authForm" class="space-y-4">
+                <div id="fullNameGroup" class="hidden">
+                    <label class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">Full Name</label>
+                    <input type="text" id="authFullName" placeholder="e.g. Alex Johnson" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">Username</label>
+                    <input type="text" id="authUsername" placeholder="e.g. alex" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">Password</label>
+                    <input type="password" id="authPassword" placeholder="Password" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 transition">
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 transition mt-2 shadow-lg shadow-purple-500/20">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-5 text-center">
+                <p class="text-[11px] text-zinc-500">Each account maintains its own continuous memory & attempts.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template for Attempt Card in Dashboard -->
+    <template id="attemptCardTemplate">
+        <div class="attempt-card bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700/80 transition-all rounded-2xl p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="attempt-number-badge text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-0.5 rounded-full font-bold">Attempt #1</span>
+                    <span class="attempt-subject-badge text-xs bg-zinc-800 text-zinc-200 px-2.5 py-0.5 rounded-full font-medium">Python</span>
+                    <span class="attempt-date text-xs text-zinc-500"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-wider block">Score</span>
+                        <span class="attempt-score text-lg font-bold text-white">0/100</span>
+                    </div>
+                    <button class="view-feedback-btn bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                        <span>View Full Feedback</span>
+                        <i class="fas fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <p class="attempt-summary text-xs text-zinc-300 mb-3 leading-relaxed"></p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-3">
+                <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/60">
+                    <span class="text-emerald-400 font-semibold block mb-1">✓ Key Strengths</span>
+                    <p class="attempt-strengths text-zinc-300 line-clamp-2"></p>
+                </div>
+                <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/60">
+                    <span class="text-amber-400 font-semibold block mb-1">⚠ Needs Improvement</span>
+                    <p class="attempt-weaknesses text-zinc-300 line-clamp-2"></p>
+                </div>
+            </div>
+
+            <div class="attempt-comparison-row hidden bg-purple-950/20 border border-purple-500/20 rounded-xl px-3.5 py-2 text-xs flex items-center justify-between text-purple-300">
+                <span class="attempt-comparison-text font-medium"></span>
+                <span class="attempt-comparison-badge text-emerald-400 font-bold"></span>
+            </div>
+        </div>
+    </template>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
